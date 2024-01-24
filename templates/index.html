@@ -1,0 +1,57 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunicación Interna</title>
+    <link rel="stylesheet" href="/../static/css/index.css"> <!-- Enlaza tu archivo de estilos aquí -->
+</head>
+<body>
+
+    <div id="chat-container">
+        <div id="messages-container">
+            <!-- Aquí se mostrarán los mensajes -->
+        </div>
+        <div id="message-input-container">
+            <input type="text" id="messageInput" placeholder="Escribe tu mensaje..." autocomplete="off">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+    
+        socket.on('message', function(data) {
+            var messagesContainer = document.getElementById('messages-container');
+            messagesContainer.innerHTML += '<div class="message">' +
+                                            '<p class="content"><strong>' + data.user + ':</strong> ' + data.message + '</p>' +
+                                            '<span class="time">' + data.time + '</span>' +
+                                          '</div>';
+        });
+    
+        function sendMessage() {
+            var messageInput = document.getElementById('messageInput');
+            var message = messageInput.value.trim();
+    
+            if (message !== '') {
+                // Envía solo el mensaje al servidor
+                socket.emit('message', message);
+    
+                // Limpia el campo de entrada
+                messageInput.value = '';
+            }
+        }
+
+        function getCurrentTime() {
+            var timestamp = new Date();
+            var hours = timestamp.getHours();
+            var minutes = timestamp.getMinutes();
+            return hours + ':' + (minutes < 10 ? '0' : '') + minutes;
+        }
+    </script>
+
+</body>
+</html>
